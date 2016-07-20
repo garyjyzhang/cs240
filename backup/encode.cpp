@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cmath>
 #include <bitset>
+#include <algorithm>
 
 using namespace std;
 
@@ -62,7 +63,7 @@ string BWTCompress(string s) {
  return result;
 }
 
-string LZWDecode( unsigned char * codedText, unsigned int length ) {
+string Encode::LZWDecode( unsigned char * codedText, unsigned int length ) {
   if (length <= 0) return "";
   map<int, string> map;
   for (int c = 32; c <= 126; c++) {
@@ -91,7 +92,7 @@ string LZWDecode( unsigned char * codedText, unsigned int length ) {
   return result;
 }
 
-unsigned int LZWEncode(string s, unsigned char *& result) {
+unsigned int Encode::LZWEncode(string s, unsigned char *& result) {
   map<string, int> map;
   for (int c = 32; c <= 126; c++) {
     map[string(1, (char) c)] = c;
