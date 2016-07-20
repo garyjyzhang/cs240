@@ -4,7 +4,7 @@
 #include <map>
 #include <cassert>
 #include <cmath>
-#include <bitset>
+#include <algorithm>
 
 using namespace std;
 
@@ -28,16 +28,11 @@ string BWTDecompress(string s) {
   for(int i = 0; i < size; i++) {
     v.push_back(kvp(s.at(i), i));
     map[i] = s.at(i);
-    cout << "char: " << s.at(i) << " index: " << i << endl;
   }
 
 
   sort(v.begin(), v.end());
-  /*
-  for(int i = 0; i < size; i++) {
-    cout << "char: " << v[i].c << " index: " << v[i].i << endl;
-  }
-  */
+
   int index = 0;
   for(int i = 0; i < size; i++) {
     result += map[v[index].i];
@@ -86,11 +81,11 @@ vector<bool> Encode::convertBack(int x) {
 void Encode::convertCharToInt(vector<int>& result, unsigned char *codedText, unsigned int length) {
   vector<bool> v;
   int index = 0;
-  cout << "here" << endl;
 
   for(int i = 0; i < length; i++) {
     int num = codedText[i];
-    vector<bool> ret = convert(num);
+    vector<bool> ret = convertBack(num);
+
     v.insert(v.end(), ret.begin(), ret.end());
     if (v.size() % intLength == 0 && v.size() != 0) {
       for(int i = 0, j = intLength - 1; j < v.size(); i += intLength, j+= intLength) {
@@ -111,7 +106,7 @@ void Encode::convertCharToInt(vector<int>& result, unsigned char *codedText, uns
     }
 
 
-    if(!v.size() % intLength == 0) cout << v.size() % intLength << endl;
+    assert(v.size() % intLength == 0);
     for(int i = 0, j = intLength - 1; j < v.size(); i += intLength, j+= intLength) {
         int x = 0;
         for(int p = i; p <= j; p++) {
@@ -136,9 +131,6 @@ string Encode::LZWDecode( unsigned char * codedText, unsigned int length ) {
   vector<int> originalCodes;
   convertCharToInt(originalCodes, codedText, length);
 
-  for(int i = 0; i < originalCodes.size(); i++) {
-    cout << originalCodes[i] << endl;
-  }
 
   string result = "";
   int index = 128, j = 0;
@@ -158,8 +150,6 @@ string Encode::LZWDecode( unsigned char * codedText, unsigned int length ) {
     map[index++] = sPrev + s.substr(0, 1);
   }
 
-
-  cout << "index: " << index << endl;
   return result;
 }
 
@@ -187,7 +177,6 @@ unsigned int Encode::LZWEncode(string s, unsigned char *& result) {
       map[w + k] = index++;
       if(index > pow(2, intLength) - 1){
         intLength++;
-        cout << "yup" << endl;
       }
       w = k;
     }
@@ -195,9 +184,7 @@ unsigned int Encode::LZWEncode(string s, unsigned char *& result) {
   }
 
   resultList.push_back(map[w]);
-  unsigned int length = convertIntToChar(resultList, result);
-  cout << "length: " << length << endl;
-  return length;
+  return convertIntToChar(resultList, result);
  }
 
 vector<bool> Encode::convert(int x) {
@@ -209,7 +196,7 @@ vector<bool> Encode::convert(int x) {
       ret.push_back(0);
     x>>=1;
   }
-  for(int i = intLength; i > 8; i--) {
+  while(ret.size() < intLength) {
     ret.push_back(0);
   }
   reverse(ret.begin(),ret.end());
@@ -224,6 +211,7 @@ unsigned int Encode::convertIntToChar(vector<int>& list, unsigned char *& result
   for(int i = 0; i < list.size(); i++) {
     int num = list[i];
     vector<bool> ret = convert(num);
+
     v.insert(v.end(), ret.begin(), ret.end());
     if (v.size() % 8 == 0 && v.size() != 0) {
       for(int i = 0, j = 7; j < v.size(); i += 8, j+= 8) {
@@ -244,6 +232,7 @@ unsigned int Encode::convertIntToChar(vector<int>& list, unsigned char *& result
       v.push_back(0);
       trailing++;
     }
+
     for(int i = 0, j = 7; j < v.size(); i += 8, j+= 8) {
         int x = 0;
         for(int p = i; p <= j; p++) {
@@ -262,7 +251,8 @@ unsigned int Encode::Compress( const string &source, unsigned char *& result ) {
   string from(source);
   string bwtCode = BWTCompress(from);
 
-  return LZWEncode(bwtCode, result);
+  int length = LZWEncode(bwtCode, result);
+  return length;
 }
 
 
