@@ -59,6 +59,7 @@ string BWTCompress(string s) {
     result.append(&(v[i].at(size - 1)));
  }
 
+ cout << "compress done" << endl;
  return result;
 }
 
@@ -242,6 +243,7 @@ unsigned int Encode::convertIntToChar(vector<int>& list, unsigned char *& result
         result[index++] = x;
       }
   }
+
   return index;
 }
 
@@ -249,13 +251,14 @@ unsigned int Encode::convertIntToChar(vector<int>& list, unsigned char *& result
 // Implement Encode Here if Needed
 unsigned int Encode::Compress( const string &source, unsigned char *& result ) {
   string from(source);
-  string bwtCode = BWTCompress(from);
+  //string bwtCode = BWTCompress(from);
 
-  int length = LZWEncode(bwtCode, result);
+  int length = LZWEncode(from, result);
   return length;
 }
 
 
 string Encode::Decompress( unsigned char * codedText, unsigned int length ) {
-  return BWTDecompress(LZWDecode(codedText, length));
+  //return BWTDecompress(LZWDecode(codedText, length));
+  return LZWDecode(codedText, length);
 }
